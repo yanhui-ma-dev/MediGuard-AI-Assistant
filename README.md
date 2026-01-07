@@ -15,13 +15,20 @@ We believe that health is a daily journey, not just a response to illness. Most 
 
 ---
 
+## 🗺️ Roadmap
+- [x] **Phase 1**: Core Drug-Drug Interaction (DDI) engine with Neo4j.
+- [x] **Phase 2**: Real-time medication scanning UI.
+- [ ] **Phase 3**: Medical Report Translation (Jargon-to-Human) — *Leveraging Gemini 2.5 Flash to simplify complex medical terminology into actionable daily insights.*
+
+---
+
 ## 🚀 Key Capabilities
 
 ### 1. Intelligent Drug-Drug Interaction (DDI) Analysis
 Leveraging the structured logic of **Neo4j**, MediGuard maps complex relationships between various medications. It identifies potential risks not just by name, but by analyzing active ingredients and metabolic pathways, ensuring that daily health management is backed by rigorous data.
 
-### 2. Medical Report Translation (Jargon-to-Human)
-Medical reports are often filled with intimidating terminology that creates an information gap. MediGuard uses **Gemini 2.5 Flash** to "translate" these professional reports into clear, empathetic, and **human-readable language**. 
+### 2. Medical Report Translation (Upcoming) 
+Aiming to bridge the information gap where medical reports are filled with intimidating terminology. This upcoming feature will use **Gemini 2.5 Flash** to "translate" professional reports into clear, empathetic, and human-readable language.
 * **Understandable**: No more confusing acronyms or Latin terms.
 * **Actionable**: Clear insights that help you make informed daily health decisions.
 
