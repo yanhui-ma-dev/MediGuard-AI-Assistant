@@ -1,0 +1,13 @@
+id:ID(Entity),:LABEL,name_cn,name_en,unit,plain_summary
+D_DM2,Disease,2型糖尿病,Type 2 diabetes,,"""Insulin deficiency"": The body's ability to use insulin is weakened, leading to excessively high blood sugar levels."
+D_HTN,Disease,高血压,Hypertension,,"""High blood pressure"": The pressure exerted by the blood on the walls of blood vessels is consistently higher than normal, just like excessive water pressure in a water pipe."
+D_CKD,Disease,慢性肾脏病,Chronic Kidney Disease,,"""Decreased kidney function"": A continuous decline in the kidneys' ability to filter blood, usually caused by diabetes or high blood pressure."
+I_GLU,Indicator,空腹血糖,Fasting blood sugar,mmol/L,Measure blood glucose levels in a fasting state.
+I_GH,Indicator,糖化血红蛋白,Glycated Hemoglobin,,
+I_BP,Indicator,血压,Blood Pressure,mmHg,
+I_SC,Indicator,血清肌酐,Serum Creatinine,μmol/L,
+I_UP,Indicator,尿蛋白,Urine Protein,,
+R_MET,Drug,二甲双胍,Metformin,,It helps control blood sugar levels and is generally recommended for overweight people who cannot control their blood sugar through diet and exercise alone.
+R_ARB,Drug,厄贝沙坦,Irbesartan,,Commonly used antihypertensive drugs. In layman's terms: they dilate blood vessels and lower blood pressure.
+R_ALL,Drug,别嘌醇,Allopurinol,,A prescription drug used to lower excessively high levels of uric acid in the blood.
+R_FUR,Drug,呋塞米,Furosemide,,It is used to treat high blood pressure.

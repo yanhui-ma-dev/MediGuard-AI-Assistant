@@ -1,0 +1,10 @@
+:START_ID,:END_ID,:TYPE,severity,plain_warning,plain_relevance,plain_meaning,status,value_min,value_max
+R_ARB,R_ALL,CONTRAINDICATES,LOW RISK,Clinical Insights: Concurrent use may increase metabolic burden on the kidneys. Regular monitoring of kidney function is recommended.,,,,,
+R_MET,R_FUR,CONTRAINDICATES,MODERATE RISK,Clinical Insights: Concurreny use may impact kidney function and lactic acid levels. Adequate hydration is essential.
+R_ARB,R_MET,CONTRAINDICATES,LOW RISK,"Clinical Insights: Generally safe, but may slightly enhance blood sugar lowering effects. Monitoring blood glucose is advisable when satrting.",,,,,
+I_GLU,D_DM2,RELATED_TO,,,,Management Tip: Your blood glucose level is within the ideal control range of 6.0 to 8.0 mmol/L. Please confirm with your doctor whether you have reached your personal target.,Target_Optimal,6,8
+I_GLU,D_DM2,RELATED_TO,,,,Management Notice (High): Your blood glucose level is above the target range of 8.001 mmol/L. Adjustments to your diet or medication may be necessary. Please contact your doctor for evaluation.,Target_Above,8.001,
+I_GLU,D_DM2,RELATED_TO,,,,Management Tip (Low): Your blood glucose level is below the target range of 6.0 mmol/L. Please be aware of the risk of hypoglycemia and consult your doctor as soon as possible.,Target_Below,6,
+I_SC,D_CKD,RELATED_TO,,,,The results indicate that serum creatinine levels are in the high range (104 to 200 μmol/L). Kidney function may be slightly impaired; further consultation with a doctor is recommended.,High_Range,104,200
+D_HTN,D_CKD,CAUSES,,,Medical fact: Long-term high blood pressure can directly damage the kidney's filtering organs and is one of the main causes of chronic kidney disease.
+D_DM2,D_CKD,CAUSES,,,Medical fact: High blood sugar can continuously damage the blood vessels in the kidneys and is one of the most common causes of chronic kidney disease.

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediGuard</title>
+    <style>
+        /* =========================================
+           1. Global Variables & Reset
+           ========================================= */
+        :root {
+            --bg-color: #FDFEFF;
+            --text-primary: #1C1C1E;
+            --card-safe: #E8F5E9;   /* Status: Safe / No Interactions */
+            --card-warn: #FFF9C4;   /* Status: Warning / Interactions Detected */
+            --btn-blue: #007AFF;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden; 
+        }
+
+        /* Styles below remain unchanged for UI consistency */
+        header { padding: 50px 24px 10px 24px; display: flex; justify-content: flex-end; flex-shrink: 0; align-items: center; gap: 16px; }
+        .user-tag { font-weight: 600; font-size: 14px; background-color: #F2F2F7; padding: 8px 16px; border-radius: 20px; }
+        main { flex: 1; padding: 0 24px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
+        .status-card { background-color: var(--card-safe); border-radius: 24px; padding: 24px; color: #1C1C1E; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-shrink: 0; transition: all 0.5s ease; }
+        .card-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+        .card-text { font-size: 15px; line-height: 1.4; font-weight: 500; }
+        .dashboard-grid { display: flex; gap: 24px; align-items: stretch; min-height: 380px; margin-bottom: 24px; }
+        .scan-card { flex: 1; background: #F2F2F7; border-radius: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; position: relative; overflow: hidden; transition: all 0.2s ease; }
+        .scan-card:active { transform: scale(0.98); background: #E5E5EA; }
+        .scan-visual-wrapper { position: relative; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; margin-bottom: 12px; }
+        .scan-custom-img { width: 52px; height: 52px; object-fit: contain; display: block; opacity: 0.8; }
+        .scan-text { font-size: 15px; font-weight: 700; color: #333; text-align: center; }
+        .scan-subtext { font-size: 11px; color: #8E8E93; margin-top: 2px; text-align: center; }
+        .list-card { flex: 2.2; background: #FFF9C4; border-radius: 24px; padding: 24px; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .list-title { font-size: 14px; font-weight: 700; color: #666; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        #medicine-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 60px; }
+        .med-tag { background: white; padding: 10px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); animation: popIn 0.3s ease; }
+        @keyframes popIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .analyze-btn { position: absolute; bottom: 20px; left: 20px; right: 20px; background: #1C1C1E; color: white; border: none; padding: 14px; border-radius: 16px; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.1s; }
+        .analyze-btn:active { transform: scale(0.95); }
+        .carousel-container { position: relative; min-height: 120px; display: flex; flex-direction: column; justify-content: space-between; }
+        .nav-arrow { position: absolute; top: 40%; transform: translateY(-50%); width: 32px; height: 32px; background: rgba(255,255,255,0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #333; font-weight: bold; font-size: 18px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; user-select: none; transition: all 0.2s; }
+        .nav-arrow:active { background: white; transform: translateY(-50%) scale(0.9); }
+        .nav-prev { left: -12px; }
+        .nav-next { right: -12px; }
+        .dots-indicator { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: #ccc; transition: all 0.3s; }
+        .dot.active { background: #333; transform: scale(1.2); }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(5px); } to { opacity: 1; transform: translateX(0); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 12px; font-weight: 600; color: #8E8E93;">Region</span>
+            <select id="region-selector" class="region-select" onchange="updateRegion()">
+                <option value="AU">🇦🇺 Australia (TGA)</option>
+                <option value="CN">🇨🇳 China (NMPA)</option>
+                <option value="US">🇺🇸 USA (FDA)</option>
+            </select>
+        </div>
+        <div class="user-tag">Dear User,</div>
+    </header>
+
+    <main>
+        <div class="status-card" id="status-card">
+            <div class="card-title" id="status-title">System Ready</div>
+            <div class="card-text" id="status-text">
+                No medicines analyzed yet.<br>
+                Please scan drugs to check for interactions.
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="scan-card" onclick="window.location.href='scan.html'">
+                <div class="scan-visual-wrapper">
+                    <img src="image/search-barcode-icon.svg" class="scan-custom-img" alt="Scan Icon">
+                </div>
+                <div class="scan-text">Scan Medicine</div>
+                <div class="scan-subtext">Tap to add drugs</div>
+            </div>
+
+            <div class="list-card">
+                <div class="list-title">Medicine List</div>
+                <div id="medicine-list">
+                    <div style="font-size: 11px; color: #999; font-style: italic; margin-top: 10px;">
+                        No medicine scanned.
+                    </div>
+                </div>
+                <button class="analyze-btn" onclick="checkInteractions()">
+                    Check Risk
+                </button>
+            </div>
+        </div> 
+    </main>
+
+    <script>
+        // ==========================================
+        // 1. Configuration (Placeholder for GitHub)
+        // ==========================================
+        const CONFIG = {
+            // NOTE: Replace with 'http://127.0.0.1:8000' for local development
+            API_BASE_URL: 'YOUR_BACKEND_API_URL_HERE' 
+        };
+
+        // ==========================================
+        // 2. State Management
+        // ==========================================
+        let globalRisks = [];
+        let currentIndex = 0;
+        let currentRegion = "AU";
+
+        // Load data from LocalStorage on startup
+        window.onload = function() {
+            const storedData = localStorage.getItem('myMedicines');
+            if (storedData) {
+                const medicines = JSON.parse(storedData);
+                const container = document.getElementById('medicine-list');
+                if (medicines.length > 0) {
+                    container.innerHTML = ""; 
+                    medicines.forEach(drugName => {
+                        const tag = document.createElement('div');
+                        tag.className = 'med-tag';
+                        tag.innerHTML = `${drugName}`;
+                        container.appendChild(tag);
+                    });
+                }
+            }
+        };
+
+        // Handle region selector change
+        function updateRegion() {
+            currentRegion = document.getElementById('region-selector').value;
+            if (globalRisks.length > 0) renderCarousel();
+        }
+
+        // ==========================================
+        // 3. Core Business Logic: Interaction Check
+        // ==========================================
+        async function checkInteractions() {
+            // Safety Check: Ensure API URL is configured
+            if (CONFIG.API_BASE_URL.includes('YOUR_BACKEND')) {
+                alert("Please configure CONFIG.API_BASE_URL in the <script> section of index.html first.");
+                return;
+            }
+
+            const storedData = localStorage.getItem('myMedicines') || "[]";
+            const medicines = JSON.parse(storedData);
+            
+            const card = document.getElementById('status-card');
+            const title = document.getElementById('status-title');
+            const text = document.getElementById('status-text');
+
+            if (medicines.length < 2) {
+                alert("Please scan at least 2 medicines to check for interactions.");
+                return;
+            }
+
+            // Update UI to Loading State
+            title.innerText = "Analyzing...";
+            text.innerText = "Querying Medical Knowledge Graph...";
+            card.style.backgroundColor = "#E5E5EA"; 
+
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        user_question: `Check interactions between ${medicines.join(' and ')}` 
+                    })
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.retrieved_data && data.retrieved_data.length > 0) {
+                    globalRisks = data.retrieved_data; 
+                    currentIndex = 0;                  
+                    renderCarousel(); 
+                } else {
+                    // Safe State: No interactions found
+                    card.style.backgroundColor = "#E8F5E9"; 
+                    title.innerText = "Safe to Use";
+                    text.innerHTML = `<div style="font-size: 15px; line-height: 1.5; color: #2E7D32;">No known interactions found between these medicines in our database.</div>`;
+                }
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                title.innerText = "Network Error";
+                text.innerText = "Unable to connect to backend. Please check your API URL and Server status.";
+                card.style.backgroundColor = "#FEE2E2";
+            }
+        }
+
+        // ==========================================
+        // 4. UI Component: Carousel Rendering
+        // ==========================================
+        function renderCarousel() {
+            const card = document.getElementById('status-card');
+            const title = document.getElementById('status-title');
+            const text = document.getElementById('status-text');
+
+            const total = globalRisks.length;
+            const item = globalRisks[currentIndex];
+            
+            let drugA = item.source_drug || "Drug A"; 
+            let drugB = item.target_drug || "Drug B"; 
+            let info = item.interaction_info || item;
+            let severity = info.severity || "Warning";
+            let warning = info.plain_warning || "Please consult a healthcare professional.";
+
+            // UI Feedback based on Severity
+            if (severity.toLowerCase().includes("high") || severity.toLowerCase().includes("moderate")) {
+                card.style.backgroundColor = "#FFEBEE"; // Red-ish for alerts
+                title.innerText = `⛔️ Alert ${currentIndex + 1} of ${total}`;
+            } else {
+                card.style.backgroundColor = "#FFF9C4"; // Yellow-ish for notes
+                title.innerText = `⚠️ Note ${currentIndex + 1} of ${total}`;
+            }
+
+            // Navigation Elements
+            let arrowsHTML = "";
+            let dotsHTML = "";
+            if (total > 1) {
+                let prevStyle = currentIndex === 0 ? "visibility: hidden;" : "";
+                let nextStyle = currentIndex === total - 1 ? "visibility: hidden;" : "";
+                arrowsHTML = `
+                    <div class="nav-arrow nav-prev" onclick="prevCard()" style="${prevStyle}">❮</div>
+                    <div class="nav-arrow nav-next" onclick="nextCard()" style="${nextStyle}">❯</div>
+                `;
+                for (let i = 0; i < total; i++) {
+                    dotsHTML += `<div class="dot ${i === currentIndex ? "active" : ""}"></div>`;
+                }
+            }
+
+            text.innerHTML = `
+                <div class="carousel-container fade-in">
+                    ${arrowsHTML}
+                    <div style="padding: 0 20px;"> 
+                        <div style="text-align: center; margin-bottom: 8px; font-size: 14px; font-weight: 700; color: #1C1C1E;">
+                            ${drugA} <span style="color:#FF3B30; margin: 0 4px;">⚡️</span> ${drugB}
+                        </div>
+                        <div style="margin-bottom: 8px; text-align: center;">
+                            <span style="background: #333; color: white; padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 10px; text-transform: uppercase;">
+                                ${severity}
+                            </span>
+                        </div>
+                        <div style="font-size: 15px; line-height: 1.5; color: #1C1C1E; font-weight: 500; min-height: 70px;">
+                            ${warning.replace("Clinical Insight:", "<b>Clinical Insights:</b>")}
+                            <br>
+                            <span style="font-size: 12px; color: #8E8E93; font-style: italic; margin-top: 8px; display: block;">
+                                (Always follow professional medical advice.)
+                            </span>
+                        </div>
+                    </div>
+                    <div class="dots-indicator">${dotsHTML}</div>
+                    <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(0,0,0,0.1); font-size: 11px; color: #8E8E93; display: flex; justify-content: center; align-items: center; gap: 4px;">
+                        <span>🛡️</span> Powered by Medical Knowledge Graph
+                    </div>
+                </div>
+            `;
+        }
+
+        // Carousel Controls
+        function nextCard() { if (currentIndex < globalRisks.length - 1) { currentIndex++; renderCarousel(); } }
+        function prevCard() { if (currentIndex > 0) { currentIndex--; renderCarousel(); } }
+    </script>
+</body>
+</html>
