@@ -35,7 +35,7 @@ Aiming to bridge the information gap where medical reports are filled with intim
 ---
 
 ## 📺 Live Demo
-[![MediGuard Demo Video](https://img.youtube.com/vi/SrMdLkc1WRg/0.jpg)](https://youtu.be/SrMdLkc1WRg)
+[![MediGuard Demo Video](https://youtu.be/ti-1i4NOsj8)
 *Click the image above to watch how MediGuard simplifies healthcare.*
 
 ---
