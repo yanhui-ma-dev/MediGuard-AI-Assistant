@@ -32,6 +32,25 @@ Aiming to bridge the information gap where medical reports are filled with intim
 * **Understandable**: No more confusing acronyms or Latin terms.
 * **Actionable**: Clear insights that help you make informed daily health decisions.
 
+### 3. RAG Architecture: How It Works
+The diagram below illustrates the end-to-end RAG pipeline that powers MediGuard's explainable outputs:
+
+```mermaid
+flowchart TD
+    A["User Input:<br/>Drug A + Drug B"] --> B
+    subgraph B["1. Retrieval"]
+        B1["Query Neo4j via Python/Flask to extract<br/>interaction pathways and graph relationships<br/>between Drug A and Drug B"]
+    end
+    B --> C
+    subgraph C["2. Augmentation"]
+        C1["Feed structured graph facts<br/>as context to the LLM"]
+    end
+    C --> D
+    subgraph D["3. Generation"]
+        D1["LLM synthesises graph facts into a clear,<br/>traceable explanation"]
+    end
+```
+    
 ---
 
 ## 📺 Live Demo
