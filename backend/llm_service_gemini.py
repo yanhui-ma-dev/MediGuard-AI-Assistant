@@ -37,7 +37,7 @@ NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
 # Single source of truth for the Gemini model version used across
 # both the Query Understanding and Generation stages. Keep this in
 # sync with the version stated in the README badge and CV/cover letter.
-GEMINI_MODEL = "gemini-1.5-flash"
+GEMINI_MODEL = "gemini-2.5-flash"
 
 # Validate required configurations
 if not GOOGLE_API_KEY:
