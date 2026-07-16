@@ -9,9 +9,8 @@
 ## 🌟 Our Philosophy: Beyond "Patient" Safety
 We believe that health is a daily journey, not just a response to illness. Most people managing health needs aren't "patients"—they are proactive individuals looking for clarity. 
 
-- **Breaking the Information Barrier**: We believe professional medical insights should be a public right, not a specialized privilege.
-- **Simplification for Equity**: By translating complex drug interaction data into clear, understandable insights, we empower everyone—regardless of their educational background—to make informed decisions about their own bodies.
-- **Human-Centric Tech**: We combine the "logic" of Graph Databases with the "empathy" of LLMs to create a tool that speaks your language.
+- **Making Interactions Understandable**: We believe drug interaction risks shouldn't require a medical degree to understand — everyone should be able to check their own medications with confidence.
+- **Transparency by Design**: Every insight MediGuard surfaces can be traced back to its source in the knowledge graph — no black-box answers, just explainable reasoning you can verify.
 
 ---
 
