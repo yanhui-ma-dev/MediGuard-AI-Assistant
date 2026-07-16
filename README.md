@@ -30,17 +30,28 @@ The diagram below illustrates the end-to-end RAG pipeline that powers MediGuard'
 
 ```mermaid
 flowchart TD
-    A["User Input:<br/>Drug A + Drug B"] --> B
-    subgraph B["1. Retrieval"]
-        B1["Query Neo4j via Python/Flask to extract<br/>interaction pathways and graph relationships<br/>between Drug A and Drug B"]
+    A["User Input:<br/>e.g. 'I'm taking Drug A and Drug B'"] --> B
+
+    subgraph B["1. Query Understanding (Gemini)"]
+        B1["Parse natural language input into a<br/>structured query for Neo4j"]
     end
+
     B --> C
-    subgraph C["2. Augmentation"]
-        C1["Feed structured graph facts<br/>as context to the LLM"]
+
+    subgraph C["2. Retrieval (Neo4j)"]
+        C1["Query the knowledge graph to extract<br/>interaction pathways and relationships<br/>between Drug A and Drug B"]
     end
+
     C --> D
-    subgraph D["3. Generation"]
-        D1["LLM synthesises graph facts into a clear,<br/>traceable explanation"]
+
+    subgraph D["3. Augmentation"]
+        D1["Feed structured graph facts<br/>as context to Gemini"]
+    end
+
+    D --> E
+
+    subgraph E["4. Generation (Gemini)"]
+        E1["Synthesise graph facts into a clear,<br/>traceable, natural-language explanation"]
     end
 ```
     
