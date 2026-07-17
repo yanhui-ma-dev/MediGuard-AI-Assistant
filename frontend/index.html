@@ -46,16 +46,13 @@
         @keyframes popIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .analyze-btn { position: absolute; bottom: 20px; left: 20px; right: 20px; background: #1C1C1E; color: white; border: none; padding: 14px; border-radius: 16px; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.1s; }
         .analyze-btn:active { transform: scale(0.95); }
-        .carousel-container { position: relative; min-height: 120px; display: flex; flex-direction: column; justify-content: space-between; }
-        .nav-arrow { position: absolute; top: 40%; transform: translateY(-50%); width: 32px; height: 32px; background: rgba(255,255,255,0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #333; font-weight: bold; font-size: 18px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; user-select: none; transition: all 0.2s; }
-        .nav-arrow:active { background: white; transform: translateY(-50%) scale(0.9); }
-        .nav-prev { left: -12px; }
-        .nav-next { right: -12px; }
-        .dots-indicator { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
-        .dot { width: 6px; height: 6px; border-radius: 50%; background: #ccc; transition: all 0.3s; }
-        .dot.active { background: #333; transform: scale(1.2); }
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateX(5px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* New: collapsible raw-data detail toggle for the AI-generated explanation */
+        .toggle-raw { font-size: 11px; color: #8E8E93; text-decoration: underline; cursor: pointer; margin-top: 8px; display: inline-block; }
+        .raw-facts { font-size: 12px; color: #555; margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(0,0,0,0.1); white-space: pre-wrap; display: none; }
+        .raw-facts.visible { display: block; }
     </style>
 </head>
 <body>
@@ -117,7 +114,6 @@
         // 2. State Management
         // ==========================================
         let globalRisks = [];
-        let currentIndex = 0;
         let currentRegion = "AU";
 
         // Load data from LocalStorage on startup
@@ -141,7 +137,6 @@
         // Handle region selector change
         function updateRegion() {
             currentRegion = document.getElementById('region-selector').value;
-            if (globalRisks.length > 0) renderCarousel();
         }
 
         // ==========================================
@@ -183,16 +178,17 @@
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
                 const data = await response.json();
+                globalRisks = data.retrieved_data || [];
 
-                if (data.retrieved_data && data.retrieved_data.length > 0) {
-                    globalRisks = data.retrieved_data; 
-                    currentIndex = 0;                  
-                    renderCarousel(); 
+                if (globalRisks.length > 0) {
+                    renderExplanation(data.explanation, globalRisks);
                 } else {
                     // Safe State: No interactions found
                     card.style.backgroundColor = "#E8F5E9"; 
                     title.innerText = "Safe to Use";
-                    text.innerHTML = `<div style="font-size: 15px; line-height: 1.5; color: #2E7D32;">No known interactions found between these medicines in our database.</div>`;
+                    text.innerHTML = data.explanation
+                        ? `<div style="font-size: 15px; line-height: 1.5; color: #2E7D32;">${data.explanation}</div>`
+                        : `<div style="font-size: 15px; line-height: 1.5; color: #2E7D32;">No known interactions found between these medicines in our database.</div>`;
                 }
             } catch (error) {
                 console.error("Fetch Error:", error);
@@ -203,77 +199,56 @@
         }
 
         // ==========================================
-        // 4. UI Component: Carousel Rendering
+        // 4. UI Component: AI-generated Explanation Rendering
         // ==========================================
-        function renderCarousel() {
+        function renderExplanation(explanation, risks) {
             const card = document.getElementById('status-card');
             const title = document.getElementById('status-title');
             const text = document.getElementById('status-text');
 
-            const total = globalRisks.length;
-            const item = globalRisks[currentIndex];
-            
-            let drugA = item.source_drug || "Drug A"; 
-            let drugB = item.target_drug || "Drug B"; 
-            let info = item.interaction_info || item;
-            let severity = info.severity || "Warning";
-            let warning = info.plain_warning || "Please consult a healthcare professional.";
+            // Determine overall severity across all retrieved interactions,
+            // used only for the card's colour/heading — the explanation text
+            // itself is the single, Gemini-synthesised summary (Generation stage).
+            const hasHighSeverity = risks.some(item => {
+                const sev = (item.interaction_info?.severity || item.severity || "").toLowerCase();
+                return sev.includes("high") || sev.includes("moderate");
+            });
 
-            // UI Feedback based on Severity
-            if (severity.toLowerCase().includes("high") || severity.toLowerCase().includes("moderate")) {
-                card.style.backgroundColor = "#FFEBEE"; // Red-ish for alerts
-                title.innerText = `⛔️ Alert ${currentIndex + 1} of ${total}`;
+            if (hasHighSeverity) {
+                card.style.backgroundColor = "#FFEBEE";
+                title.innerText = `⛔️ Interaction Alert (${risks.length} found)`;
             } else {
-                card.style.backgroundColor = "#FFF9C4"; // Yellow-ish for notes
-                title.innerText = `⚠️ Note ${currentIndex + 1} of ${total}`;
+                card.style.backgroundColor = "#FFF9C4";
+                title.innerText = `⚠️ Interaction Note (${risks.length} found)`;
             }
 
-            // Navigation Elements
-            let arrowsHTML = "";
-            let dotsHTML = "";
-            if (total > 1) {
-                let prevStyle = currentIndex === 0 ? "visibility: hidden;" : "";
-                let nextStyle = currentIndex === total - 1 ? "visibility: hidden;" : "";
-                arrowsHTML = `
-                    <div class="nav-arrow nav-prev" onclick="prevCard()" style="${prevStyle}">❮</div>
-                    <div class="nav-arrow nav-next" onclick="nextCard()" style="${nextStyle}">❯</div>
-                `;
-                for (let i = 0; i < total; i++) {
-                    dotsHTML += `<div class="dot ${i === currentIndex ? "active" : ""}"></div>`;
-                }
-            }
+            // Build a compact raw-facts view for transparency (Retrieval stage output),
+            // kept separate from the Generation-stage explanation so the two are
+            // never conflated.
+            const rawFactsHTML = risks.map(item => {
+                const info = item.interaction_info || {};
+                return `${item.source_drug || 'Drug A'} + ${item.target_drug || 'Drug B'}: `
+                     + `${info.severity || 'unknown'} — ${info.plain_warning || 'N/A'}`;
+            }).join('\n');
 
             text.innerHTML = `
-                <div class="carousel-container fade-in">
-                    ${arrowsHTML}
-                    <div style="padding: 0 20px;"> 
-                        <div style="text-align: center; margin-bottom: 8px; font-size: 14px; font-weight: 700; color: #1C1C1E;">
-                            ${drugA} <span style="color:#FF3B30; margin: 0 4px;">⚡️</span> ${drugB}
-                        </div>
-                        <div style="margin-bottom: 8px; text-align: center;">
-                            <span style="background: #333; color: white; padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 10px; text-transform: uppercase;">
-                                ${severity}
-                            </span>
-                        </div>
-                        <div style="font-size: 15px; line-height: 1.5; color: #1C1C1E; font-weight: 500; min-height: 70px;">
-                            ${warning.replace("Clinical Insight:", "<b>Clinical Insights:</b>")}
-                            <br>
-                            <span style="font-size: 12px; color: #8E8E93; font-style: italic; margin-top: 8px; display: block;">
-                                (Always follow professional medical advice.)
-                            </span>
-                        </div>
+                <div class="fade-in">
+                    <div style="font-size: 15px; line-height: 1.5; color: #1C1C1E; font-weight: 500;">
+                        ${explanation}
                     </div>
-                    <div class="dots-indicator">${dotsHTML}</div>
+                    <span class="toggle-raw" onclick="toggleRawFacts()">View source data from knowledge graph</span>
+                    <div class="raw-facts" id="raw-facts">${rawFactsHTML}</div>
                     <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(0,0,0,0.1); font-size: 11px; color: #8E8E93; display: flex; justify-content: center; align-items: center; gap: 4px;">
-                        <span>🛡️</span> Powered by Medical Knowledge Graph
+                        <span>🛡️</span> Powered by Medical Knowledge Graph + Gemini
                     </div>
                 </div>
             `;
         }
 
-        // Carousel Controls
-        function nextCard() { if (currentIndex < globalRisks.length - 1) { currentIndex++; renderCarousel(); } }
-        function prevCard() { if (currentIndex > 0) { currentIndex--; renderCarousel(); } }
+        function toggleRawFacts() {
+            const el = document.getElementById('raw-facts');
+            el.classList.toggle('visible');
+        }
     </script>
 </body>
 </html>
