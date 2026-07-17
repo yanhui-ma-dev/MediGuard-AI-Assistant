@@ -23,7 +23,7 @@ We believe that health is a daily journey, not just a response to illness. Most 
 ## 🚀 Key Capabilities
 
 ### 1. Intelligent Drug-Drug Interaction (DDI) Analysis
-Leveraging the structured logic of **Neo4j**, MediGuard maps complex relationships between various medications. It identifies potential risks not just by name, but by analyzing active ingredients and metabolic pathways, ensuring that daily health management is backed by rigorous data.
+Leveraging the structured logic of **Neo4j**, MediGuard maps documented drug-drug contraindications, severity classifications, and clinical guidance between medications, providing risk information backed by a structured knowledge graph.
 
 ### 2. RAG Architecture: How It Works
 The diagram below illustrates the end-to-end RAG pipeline that powers MediGuard's explainable outputs:
@@ -54,7 +54,9 @@ flowchart TD
         E1["Synthesise graph facts into a clear,<br/>traceable, natural-language explanation"]
     end
 ```
-    
+
+### Phase 3: Extend beyond drug-drug interactions to surface disease-progression and lab-indicator insights (e.g. hypertension → chronic kidney disease pathways) already modelled in the knowledge graph
+
 ---
 
 ## 📺 Live Demo
