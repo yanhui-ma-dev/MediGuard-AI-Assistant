@@ -17,7 +17,7 @@ We believe that health is a daily journey, not just a response to illness. Most 
 ## 🗺️ Roadmap
 - [x] **Phase 1**: Core Drug-Drug Interaction (DDI) engine with Neo4j.
 - [x] **Phase 2**: Real-time medication scanning UI.
-
+-     **Phase 3**: Extend beyond drug-drug interactions to surface disease-progression and lab-indicator insights (e.g. hypertension → chronic kidney disease pathways) already modelled in the knowledge graph.
 ---
 
 ## 🚀 Key Capabilities
@@ -54,8 +54,6 @@ flowchart TD
         E1["Synthesise graph facts into a clear,<br/>traceable, natural-language explanation"]
     end
 ```
-
-### Phase 3: Extend beyond drug-drug interactions to surface disease-progression and lab-indicator insights (e.g. hypertension → chronic kidney disease pathways) already modelled in the knowledge graph
 
 ---
 
