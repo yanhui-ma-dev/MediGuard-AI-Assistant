@@ -66,7 +66,7 @@ flowchart TD
 ## 📂 Project Structure
 ```text
 MediGuard-AI-Assistant/
-├── frontend/         # UI Components (HTML5, Tailwind CSS, JS)
+├── frontend/         # UI Components (HTML5, CSS, JS)
 ├── backend/          # API Engine (Flask, Gemini 2.5, Py2neo)
 ├── database/         # Knowledge Graph Data (CSV files)
 ├── requirements.txt  # Python Dependencies
